@@ -19,15 +19,43 @@ function getCloudinary() {
 }
 
 // Upload a base64 string or file path
-async function uploadBase64(base64Data, options = {}) {
+async function uploadBase64(fileData, options = {}) {
     const cld = getCloudinary();
+    
     const uploadOptions = {
         folder: options.folder || 'uploads',
-        resource_type: options.resource_type || 'image',
+        resource_type: options.resource_type || 'auto',
         ...options,
     };
 
-    return cld.uploader.upload(base64Data, uploadOptions);
+    // If it's a Data URI, convert to Buffer and use upload_stream
+    if (typeof fileData === 'string' && fileData.startsWith('data:')) {
+        const parts = fileData.split(';base64,');
+        if (parts.length === 2) {
+            const mimeTypePart = parts[0]; 
+            const base64Content = parts[1];
+            const mimeType = mimeTypePart.split(':')[1];
+            
+            if (mimeType.startsWith('video/')) {
+                uploadOptions.resource_type = 'video';
+            } else if (mimeType.startsWith('image/')) {
+                uploadOptions.resource_type = 'image';
+            }
+            
+            const buffer = Buffer.from(base64Content, 'base64');
+            
+            return new Promise((resolve, reject) => {
+                const stream = cld.uploader.upload_stream(uploadOptions, (error, result) => {
+                    if (error) reject(error);
+                    else resolve(result);
+                });
+                stream.end(buffer);
+            });
+        }
+    }
+
+    // Fallback for direct file paths or other strings
+    return cld.uploader.upload(fileData, uploadOptions);
 }
 
 // Upload from a URL (for AI-generated images)

@@ -17,9 +17,11 @@ router.post('/upload-base64', async (req, res) => {
         const { file, folder, resourceType, ...rest } = req.body;
 
         if (!file) {
+            console.error('[Cloudinary Route] Missing file in request body');
             return res.status(400).json({ success: false, message: 'File (base64) is required' });
         }
 
+        console.log(`[Cloudinary Route] Uploading ${resourceType || 'image'} to folder: ${folder || 'uploads'}`);
         const result = await uploadBase64(file, { folder, resource_type: resourceType || 'image', ...rest });
 
         res.json({
@@ -29,7 +31,12 @@ router.post('/upload-base64', async (req, res) => {
 
     } catch (error) {
         console.error('Upload Base64 Error:', error);
-        res.status(500).json({ success: false, message: error.message });
+        // Include more details in the response for debugging
+        res.status(500).json({
+            success: false,
+            message: error.message,
+            error: error
+        });
     }
 });
 

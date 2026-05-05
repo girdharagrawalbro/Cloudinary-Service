@@ -20,7 +20,7 @@ app.use(cors({
     credentials: true,
 }));
 
-app.use(express.json({ limit: '25mb' }));
+app.use(express.json({ limit: '100mb' }));
 
 const cloudinaryRoutes = require('./routes/cloudinary.routes');
 
