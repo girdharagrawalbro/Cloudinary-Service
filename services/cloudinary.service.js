@@ -80,4 +80,27 @@ function transformUrl(publicId, options = {}) {
     return cld.url(publicId, options);
 }
 
-module.exports = { getCloudinary, uploadBase64, uploadFromUrl, deleteAsset, transformUrl };
+// Generate signature for direct upload
+function generateSignature(timestamp, folder) {
+    const cld = getCloudinary();
+    const paramsToSign = {
+        timestamp: Number(timestamp)
+    };
+    if (folder) {
+        paramsToSign.folder = folder;
+    }
+    const signature = cld.utils.api_sign_request(
+        paramsToSign,
+        process.env.CLOUDINARY_API_SECRET
+    );
+    return {
+        success: true,
+        signature,
+        timestamp,
+        cloudName: process.env.CLOUDINARY_CLOUD_NAME,
+        apiKey: process.env.CLOUDINARY_API_KEY,
+        folder
+    };
+}
+
+module.exports = { getCloudinary, uploadBase64, uploadFromUrl, deleteAsset, transformUrl, generateSignature };

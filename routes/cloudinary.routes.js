@@ -5,7 +5,8 @@ const {
     uploadBase64,
     uploadFromUrl,
     deleteAsset,
-    transformUrl
+    transformUrl,
+    generateSignature
 } = require('../services/cloudinary.service'); // adjust path
 
 // ─────────────────────────────────────────────
@@ -177,5 +178,24 @@ router.post('/upload-url', async (req, res) => {
 //         });
 //     }
 // });
+
+// ─────────────────────────────────────────────
+// ✅ Generate Signature for direct upload
+// POST /api/cloudinary/sign
+// ─────────────────────────────────────────────
+router.post('/sign', (req, res) => {
+    try {
+        const { timestamp, folder } = req.body;
+        if (!timestamp) {
+            return res.status(400).json({ success: false, message: 'Timestamp is required' });
+        }
+        
+        const result = generateSignature(timestamp, folder);
+        res.json(result);
+    } catch (error) {
+        console.error('Signature Generation Error:', error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
 
 module.exports = router;
