@@ -39,5 +39,7 @@ jobs:
           registryUsername: ${{ secrets.CLOUDINARY_REGISTRY_USERNAME }}
           registryPassword: ${{ secrets.CLOUDINARY_REGISTRY_PASSWORD }}
           containerAppName: cloudinary
-          resourceGroup: nats
+          resourceGroup: SocialSquare_group
+          containerAppEnvironment: managedEnvironment-nats-9af4
+          environmentResourceGroup: nats
           imageToBuild: ${{ secrets.CLOUDINARY_REGISTRY_URL }}/cloudinary:${{ github.sha }}
